@@ -21,7 +21,7 @@ def parse_data(file_base_name):
 
     countries.parse_country_columns(data)
     states.parse_state_columns(data, "SG_UF_NCM")
-    remove_columns(data, ["CO_NCM", "CO_URF"])
+    remove_columns(data, ["CO_NCM", "CO_URF", "CO_PAIS", "SG_UF_NCM"])
 
     with open(f"data/{file_base_name}_processed.csv", "w", encoding="utf-8") as file:
         data.to_csv(file, index=False, sep=";")

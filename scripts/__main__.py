@@ -33,6 +33,10 @@ def process_per_uf(file_base_name):
     process_total_per(file_base_name, "NOME_UF", "UF")
 
 
+def process_per_month(file_base_name):
+    process_total_per(file_base_name, "CO_MES", "MES")
+
+
 def process_count(file_base_name, column, label):
     data = (
         pd.read_csv(f"data/{file_base_name}_processed.csv", sep=";")[column]
@@ -49,6 +53,10 @@ def process_count_country(file_base_name):
 
 def process_count_uf(file_base_name):
     process_count(file_base_name, "NOME_UF", "UF")
+
+
+def process_count_month(file_base_name):
+    process_count(file_base_name, "CO_MES", "MES")
 
 
 def parse_data(file_base_name):
@@ -99,8 +107,10 @@ def process():
     process_callbacks = [
         process_per_country,
         process_per_uf,
+        process_per_month,
         process_count_country,
         process_count_uf,
+        process_count_month,
     ]
     for file_base_name in base_names:
         for call in process_callbacks:

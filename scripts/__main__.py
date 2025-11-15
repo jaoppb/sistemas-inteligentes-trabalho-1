@@ -33,6 +33,24 @@ def process_per_uf(file_base_name):
     process_total_per(file_base_name, "NOME_UF", "UF")
 
 
+def process_count(file_base_name, column, label):
+    data = (
+        pd.read_csv(f"data/{file_base_name}_processed.csv", sep=";")[column]
+        .value_counts()
+        .reset_index()
+    )
+    data.columns = [column, "QUANTIDADE"]
+    data.to_csv(f"data/CONTAGEM_POR_{label}_{file_base_name}.csv", sep=";", index=False)
+
+
+def process_count_country(file_base_name):
+    process_count(file_base_name, "NOME_PAIS", "PAIS")
+
+
+def process_count_uf(file_base_name):
+    process_count(file_base_name, "NOME_UF", "UF")
+
+
 def parse_data(file_base_name):
     with open(f"data/{file_base_name}.csv", "r", encoding="latin-1") as file:
         content = file.read()
@@ -78,7 +96,12 @@ def statistics():
 
 
 def process():
-    process_callbacks = [process_per_country, process_per_uf]
+    process_callbacks = [
+        process_per_country,
+        process_per_uf,
+        process_count_country,
+        process_count_uf,
+    ]
     for file_base_name in base_names:
         for call in process_callbacks:
             call(file_base_name)

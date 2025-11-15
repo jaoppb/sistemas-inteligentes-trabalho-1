@@ -6,8 +6,8 @@ import pandas as pd
 import encode
 import countries
 import states
-from scripts.count import count_callbacks
-from scripts.total import total_callbacks
+from count import count_callbacks
+from total import total_callbacks, total_graph_callbacks
 from utils import remove_columns, read_processed
 
 
@@ -52,6 +52,14 @@ def statistics():
         print_statistics(data)
 
 
+def graphs():
+    years = ["2024", "2025"]
+    graph_callbacks = [*total_graph_callbacks]
+    for year in years:
+        for call in graph_callbacks:
+            call(year)
+
+
 def process():
     process_callbacks = [
         *total_callbacks,
@@ -70,7 +78,7 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "command",
-        choices=["parse", "statistics", "process"],
+        choices=["parse", "statistics", "process", "graphs"],
         help="The command to execute.",
     )
 
@@ -81,6 +89,8 @@ if __name__ == "__main__":
         statistics()
     elif args.command == "process":
         process()
+    elif args.command == "graphs":
+        graphs()
     else:
         parser.print_help()
         sys.exit(1)

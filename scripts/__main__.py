@@ -6,7 +6,7 @@ import pandas as pd
 import encode
 import countries
 import states
-from count import count_callbacks
+from count import count_callbacks, count_graph_callbacks
 from total import total_callbacks, total_graph_callbacks
 from utils import remove_columns, read_processed
 
@@ -54,7 +54,7 @@ def statistics():
 
 def graphs():
     years = ["2024", "2025"]
-    graph_callbacks = [*total_graph_callbacks]
+    graph_callbacks = [*total_graph_callbacks, *count_graph_callbacks]
     for year in years:
         for call in graph_callbacks:
             call(year)

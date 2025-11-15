@@ -50,9 +50,6 @@ def graph_total_per(year, label, x_column, x_label, title_prefix, sort_by, limit
 
     data_exp = read_csv(format_csv_file_name(exp_file, label))
     data_imp = read_csv(format_csv_file_name(imp_file, label))
-    if limit is not None:
-        data_exp = data_exp[:limit]
-        data_imp = data_imp[:limit]
 
     y_column = "TOTAL_VL_FOB"
     data_exp[y_column] = data_exp[y_column] / 1_000_000_000
@@ -64,13 +61,14 @@ def graph_total_per(year, label, x_column, x_label, title_prefix, sort_by, limit
     plot_combined_graph(
         data_exp,
         data_imp,
-        x_column,
-        x_label,
-        y_column,
-        "Em Dolar Por Bilhão",
-        title,
-        file_name,
-        sort_by,
+        x_column=x_column,
+        x_label=x_label,
+        y_column=y_column,
+        y_label="Em Dolar Por Bilhão",
+        title=title,
+        file_name=file_name,
+        sort_by=sort_by,
+        limit=limit,
     )
 
 

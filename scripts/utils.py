@@ -48,6 +48,7 @@ def plot_combined_graph(
     title: str,
     file_name: str,
     sort_by: str | None = None,
+    limit=None,
 ):
     merged = pd.merge(
         data_exp[[x_column, y_column]],
@@ -62,6 +63,9 @@ def plot_combined_graph(
         merged = merged.sort_values("_total", ascending=False).drop(columns=["_total"])
     elif sort_by == "x":
         merged = merged.sort_values(x_column)
+
+    if limit is not None:
+        merged = merged[:limit]
 
     ax = merged.plot(
         kind="bar",

@@ -34,22 +34,42 @@ def parse():
         parse_data(file_base_name)
 
 
-def print_statistics(data: pd.DataFrame):
-    value_sum = data["VL_FOB"].sum()
-    value_avg = data["VL_FOB"].mean()
-    value_mode = data["VL_FOB"].mode()[0]
-    value_deviation = data["VL_FOB"].std()
-    print(f"Total VL_FOB: {value_sum}")
-    print(f"Average VL_FOB: {value_avg}")
-    print(f"Mode VL_FOB: {value_mode}")
-    print(f"Standard Deviation VL_FOB: {value_deviation}")
+def generate_statistics_per_country(data: pd.DataFrame, file_base_name: str):
+    top_countries = (
+        data.groupby("NOME_PAIS")["VL_FOB"]
+        .sum()
+        .sort_values(ascending=False)
+        .head(10)
+        .index.tolist()
+    )
+
+    top_data = data[data["NOME_PAIS"].isin(top_countries)]
+
+    stats_list = []
+    for country in top_countries:
+        country_data = top_data[top_data["NOME_PAIS"] == country]["VL_FOB"]
+        stats_list.append(
+            {
+                "NOME_PAIS": country,
+                "COUNT": country_data.count(),
+                "SUM_VL_FOB": country_data.sum(),
+                "MEAN_VL_FOB": country_data.mean(),
+                "MODE_VL_FOB": country_data.mode()[0]
+                if len(country_data.mode()) > 0
+                else 0,
+                "STD_VL_FOB": country_data.std(),
+            }
+        )
+
+    stats_df = pd.DataFrame(stats_list)
+    output_file = f"data/ESTATISTICAS_POR_PAISES_{file_base_name}.csv"
+    stats_df.to_csv(output_file, index=False, sep=";", encoding="utf-8")
 
 
 def statistics():
-    for file_base_name in ["EXP_2025", "IMP_2025"]:
-        print(f"Statistics for {file_base_name}_processed.csv:")
+    for file_base_name in base_names:
         data = read_processed(file_base_name)
-        print_statistics(data)
+        generate_statistics_per_country(data, file_base_name)
 
 
 def graphs():

@@ -224,4 +224,146 @@ Adicionalmente, a pesquisa avalia o fenômeno do desvio de comércio (trade dive
 
 -----
 
+Prompt:
+I want the statistics function to generate a csv file with sum, mean, mode and std per country for the top 10 countries
 
+Resposta:
+def generate_statistics_per_country(data: pd.DataFrame, file_base_name: str):
+    """Generate statistics per country for top 10 countries by total VL_FOB"""
+    # Get top 10 countries by sum
+    top_countries = (
+        data.groupby("NOME_PAIS")["VL_FOB"]
+        .sum()
+        .sort_values(ascending=False)
+        .head(10)
+        .index.tolist()
+    )
+
+    # Filter data for top 10 countries
+    top_data = data[data["NOME_PAIS"].isin(top_countries)]
+
+    # Calculate statistics for each country
+    stats_list = []
+    for country in top_countries:
+        country_data = top_data[top_data["NOME_PAIS"] == country]["VL_FOB"]
+        stats_list.append({
+            "NOME_PAIS": country,
+            "SUM_VL_FOB": country_data.sum(),
+            "MEAN_VL_FOB": country_data.mean(),
+            "MODE_VL_FOB": country_data.mode()[0] if len(country_data.mode()) > 0 else 0,
+            "STD_VL_FOB": country_data.std()
+        })
+
+    # Create DataFrame and save to CSV
+    stats_df = pd.DataFrame(stats_list)
+    output_file = f"data/STATISTICS_TOP10_COUNTRIES_{file_base_name}.csv"
+    stats_df.to_csv(output_file, index=False, sep=";", encoding="utf-8")
+    print(f"Statistics saved to {output_file}")
+    return stats_df
+
+
+def statistics():
+    for file_base_name in base_names:
+        print(f"Statistics for {file_base_name}_processed.csv:")
+        data = read_processed(file_base_name)
+        print_statistics(data)
+        print(f"\nGenerating per-country statistics for top 10 countries...")
+        stats_df = generate_statistics_per_country(data, file_base_name)
+        print(stats_df.to_string(index=False))
+        print()
+
+------
+
+Arquivos anexados: ESTATISTICAS_POR_PAISES_EXP_2024.csv, ESTATISTICAS_POR_PAISES_IMP_2024.csv, ESTATISTICAS_POR_PAISES_EXP_2025.csv, ESTATISTICAS_POR_PAISES_IMP_2025.csv
+
+Prompt:
+com base nos dados responda a pergunta: As transações do Brasil com seus principais parceiros econômicos são focados em quais tipos de transações: com valores mais altos, mais baixos ou estão balanceados?
+em código latex
+% Cole este bloco no seu arquivo .tex, provavelmente dentro da sua subseção 4.4
+
+Com base na análise dos dados, as transações do Brasil com seus principais parceiros econômicos \textbf{não são balanceadas}. Elas são focadas, em termos de frequência, em transações de \textbf{valores muito baixos}, embora o valor total (soma) seja fortemente impulsionado por algumas poucas transações de valor muito alto.
+
+Essa conclusão é baseada na comparação direta entre a \textbf{Média} (representada pela coluna \texttt{MEAN\_VL\_FOB}) e a \textbf{Moda} (coluna \texttt{MODE\_VL\_FOB}) das transações.
+
+% Você pode usar \subsubsection* se quiser um subtítulo sem numeração
+\subsubsection*{Análise: Média vs. Moda}
+
+A análise identificou os 5 principais parceiros comerciais (por volume total de importação + exportação em 2024-2025) como:
+\begin{enumerate}
+    \item CHINA
+    \item ESTADOS UNIDOS
+    \item ARGENTINA
+    \item ALEMANHA
+    \item MEXICO
+\end{enumerate}
+
+Para todos esses parceiros, o padrão é o mesmo:
+
+\begin{itemize}
+    \item \textbf{Moda (\texttt{MODE\_VL\_FOB}):} O valor \textit{mais frequente} de transação é extremamente baixo, quase sempre variando entre \textbf{\$1, \$2, \$4 ou \$5}.
+
+    \item \textbf{Média (\texttt{MEAN\_VL\_FOB}):} O valor \textit{médio} é muito alto, variando de dezenas de milhares a milhões de dólares.
+
+    \item \textbf{Desvio Padrão (\texttt{STD\_VL\_FOB}):} O desvio padrão é massivo, muitas vezes maior que a própria média, indicando enorme variação nos valores.
+\end{itemize}
+
+Isso indica que a \textit{vasta maioria} das transações (medida pela coluna \texttt{COUNT}) são de valores irrisórios (o valor da "Moda"). No entanto, um pequeno número de transações de valor muito elevado (milhões ou dezenas de milhões) "puxa" o valor médio para cima, distorcendo a percepção de uma transação "típica".
+
+\subsubsection*{Exemplos (Dados de 2024)}
+
+\begin{itemize}
+    \item \textbf{Exportação para CHINA:}
+    \begin{itemize}
+        \item Valor mais frequente (Moda): \$4,00
+        \item Valor médio (Média): \$3.407.424,78
+        \item Desvio Padrão: \$33.783.726,31
+    \end{itemize}
+
+    \item \textbf{Importação da CHINA:}
+    \begin{itemize}
+        \item Valor mais frequente (Moda): \$1,00
+        \item Valor médio (Média): \$124.772,01
+        \item Desvio Padrão: \$1.427.298,50
+    \end{itemize}
+
+    \item \textbf{Exportação para ESTADOS UNIDOS:}
+    \begin{itemize}
+        \item Valor mais frequente (Moda): \$1,00
+        \item Valor médio (Média): \$401.785,25
+        \item Desvio Padrão: \$4.654.297,50
+    \end{itemize}
+\end{itemize}
+
+\begin{table}
+\centering
+\caption{Análise de Média vs. Moda (Redimensionada)}
+\label{tab:analise_redimensionada}
+% ADICIONE \resizebox para forçar o ajuste
+\resizebox{\textwidth}{!}{
+\begin{tabular}{llrrrrr}
+\toprule
+          País &       Tipo &  Ano &  Média (FOB) & Moda (FOB) & Desv. Padrão (FOB) & Nº Transações \\
+\midrule
+      ALEMANHA & Exportação & 2024 &   243.975,84 &          1 &       2.885.461,71 &        23.965 \\
+      ALEMANHA & Importação & 2024 &    76.958,11 &          1 &         687.518,10 &       179.100 \\
+      ALEMANHA & Importação & 2025 &    79.065,48 &          1 &         737.087,39 &       154.509 \\
+     ARGENTINA & Exportação & 2024 &   149.677,03 &          1 &         971.664,10 &        92.049 \\
+     ARGENTINA & Exportação & 2025 &   176.212,69 &          1 &       1.283.555,30 &        89.945 \\
+     ARGENTINA & Importação & 2024 &   472.853,59 &          2 &       3.595.641,25 &        28.713 \\
+     ARGENTINA & Importação & 2025 &   459.496,55 &          4 &       3.596.899,29 &        23.441 \\
+         CHINA & Exportação & 2024 & 3.407.424,78 &          4 &      33.783.726,31 &        27.696 \\
+         CHINA & Exportação & 2025 & 3.393.780,08 &          3 &      31.687.059,31 &        24.967 \\
+         CHINA & Importação & 2024 &   124.772,01 &          1 &       1.427.298,50 &       510.021 \\
+         CHINA & Importação & 2025 &   126.767,59 &          1 &       4.122.403,87 &       472.137 \\
+ESTADOS UNIDOS & Exportação & 2024 &   401.785,25 &          1 &       4.654.297,50 &       100.473 \\
+ESTADOS UNIDOS & Exportação & 2025 &   384.320,71 &          1 &       4.067.314,10 &        81.860 \\
+ESTADOS UNIDOS & Importação & 2024 &   169.622,54 &          5 &       2.868.688,51 &       239.664 \\
+ESTADOS UNIDOS & Importação & 2025 &   184.736,68 &          5 &       3.267.988,84 &       207.307 \\
+        MEXICO & Exportação & 2024 &   160.856,68 &          1 &       1.213.959,61 &        48.503 \\
+        MEXICO & Exportação & 2025 &   157.938,11 &          1 &       1.221.100,57 &        41.058 \\
+        MEXICO & Importação & 2024 &   113.121,55 &          2 &         735.548,93 &        50.983 \\
+        MEXICO & Importação & 2025 &   112.110,27 &          6 &         776.108,68 &        44.553 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}

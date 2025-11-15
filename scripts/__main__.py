@@ -6,61 +6,12 @@ import pandas as pd
 import encode
 import countries
 import states
+from scripts.count import count_callbacks
+from scripts.total import total_callbacks
+from utils import remove_columns, read_processed
 
 
 base_names = ["EXP_2024", "IMP_2024", "EXP_2025", "IMP_2025"]
-
-
-def save_csv(data: pd.DataFrame, file_name: str):
-    data.to_csv(file_name, index=False, sep=";")
-
-
-def remove_columns(data: pd.DataFrame, columns: list[str]):
-    for column in columns:
-        if column in data.columns:
-            del data[column]
-
-
-def process_total_per(file_base_name, column, label):
-    data = (
-        read_processed(file_base_name)
-        .groupby(column)["VL_FOB"]
-        .sum()
-        .reset_index()
-        .rename(columns={"VL_FOB": "TOTAL_VL_FOB"})
-        .sort_values(by="TOTAL_VL_FOB", ascending=False)
-    )
-    save_csv(data, f"data/TOTAL_POR_{label}_{file_base_name}.csv")
-
-
-def process_per_country(file_base_name):
-    process_total_per(file_base_name, "NOME_PAIS", "PAIS")
-
-
-def process_per_uf(file_base_name):
-    process_total_per(file_base_name, "NOME_UF", "UF")
-
-
-def process_per_month(file_base_name):
-    process_total_per(file_base_name, "CO_MES", "MES")
-
-
-def process_count(file_base_name, column, label):
-    data = read_processed(file_base_name)[column].value_counts().reset_index()
-    data.columns = [column, "QUANTIDADE"]
-    save_csv(data, f"data/CONTAGEM_POR_{label}_{file_base_name}.csv")
-
-
-def process_count_country(file_base_name):
-    process_count(file_base_name, "NOME_PAIS", "PAIS")
-
-
-def process_count_uf(file_base_name):
-    process_count(file_base_name, "NOME_UF", "UF")
-
-
-def process_count_month(file_base_name):
-    process_count(file_base_name, "CO_MES", "MES")
 
 
 def parse_data(file_base_name):
@@ -83,12 +34,6 @@ def parse():
         parse_data(file_base_name)
 
 
-def read_processed(file_base_name):
-    with open(f"data/{file_base_name}_processed.csv", "r", encoding="utf-8") as file:
-        data = pd.read_csv(file, sep=";")
-    return data
-
-
 def print_statistics(data: pd.DataFrame):
     value_sum = data["VL_FOB"].sum()
     value_avg = data["VL_FOB"].mean()
@@ -109,12 +54,8 @@ def statistics():
 
 def process():
     process_callbacks = [
-        process_per_country,
-        process_per_uf,
-        process_per_month,
-        process_count_country,
-        process_count_uf,
-        process_count_month,
+        *total_callbacks,
+        *count_callbacks,
     ]
     for file_base_name in base_names:
         for call in process_callbacks:

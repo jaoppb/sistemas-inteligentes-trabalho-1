@@ -8,6 +8,9 @@ import countries
 import states
 
 
+base_names = ["EXP_2024", "IMP_2024", "EXP_2025", "IMP_2025"]
+
+
 def remove_columns(data: pd.DataFrame, columns: list[str]):
     for column in columns:
         if column in data.columns:
@@ -30,7 +33,7 @@ def parse_data(file_base_name):
 
 
 def parse():
-    for file_base_name in ["EXP_2025", "IMP_2025"]:
+    for file_base_name in base_names:
         parse_data(file_base_name)
 
 

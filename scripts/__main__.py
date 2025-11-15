@@ -17,6 +17,22 @@ def remove_columns(data: pd.DataFrame, columns: list[str]):
             del data[column]
 
 
+def process_total_per(file_base_name, column, label):
+    pd.read_csv(f"data/{file_base_name}_processed.csv", sep=";").groupby(column)[
+        "VL_FOB"
+    ].sum().reset_index().rename(columns={"VL_FOB": "TOTAL_VL_FOB"}).sort_values(
+        by="TOTAL_VL_FOB", ascending=False
+    ).to_csv(f"data/TOTAL_POR_{label}_{file_base_name}.csv", index=False)
+
+
+def process_per_country(file_base_name):
+    process_total_per(file_base_name, "NOME_PAIS", "PAIS")
+
+
+def process_per_uf(file_base_name):
+    process_total_per(file_base_name, "NOME_UF", "UF")
+
+
 def parse_data(file_base_name):
     with open(f"data/{file_base_name}.csv", "r", encoding="latin-1") as file:
         content = file.read()
@@ -61,6 +77,13 @@ def statistics():
         print_statistics(data)
 
 
+def process():
+    process_callbacks = [process_per_country, process_per_uf]
+    for file_base_name in base_names:
+        for call in process_callbacks:
+            call(file_base_name)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Process and analyze trade data files.",
@@ -69,7 +92,7 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "command",
-        choices=["parse", "statistics"],
+        choices=["parse", "statistics", "process"],
         help="The command to execute.",
     )
 
@@ -78,6 +101,8 @@ if __name__ == "__main__":
         parse()
     elif args.command == "statistics":
         statistics()
+    elif args.command == "process":
+        process()
     else:
         parser.print_help()
         sys.exit(1)

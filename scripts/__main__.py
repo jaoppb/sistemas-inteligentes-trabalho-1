@@ -11,6 +11,10 @@ import states
 base_names = ["EXP_2024", "IMP_2024", "EXP_2025", "IMP_2025"]
 
 
+def save_csv(data: pd.DataFrame, file_name: str):
+    data.to_csv(file_name, index=False, sep=";")
+
+
 def remove_columns(data: pd.DataFrame, columns: list[str]):
     for column in columns:
         if column in data.columns:
@@ -18,11 +22,15 @@ def remove_columns(data: pd.DataFrame, columns: list[str]):
 
 
 def process_total_per(file_base_name, column, label):
-    pd.read_csv(f"data/{file_base_name}_processed.csv", sep=";").groupby(column)[
-        "VL_FOB"
-    ].sum().reset_index().rename(columns={"VL_FOB": "TOTAL_VL_FOB"}).sort_values(
-        by="TOTAL_VL_FOB", ascending=False
-    ).to_csv(f"data/TOTAL_POR_{label}_{file_base_name}.csv", index=False)
+    data = (
+        read_processed(file_base_name)
+        .groupby(column)["VL_FOB"]
+        .sum()
+        .reset_index()
+        .rename(columns={"VL_FOB": "TOTAL_VL_FOB"})
+        .sort_values(by="TOTAL_VL_FOB", ascending=False)
+    )
+    save_csv(data, f"data/TOTAL_POR_{label}_{file_base_name}.csv")
 
 
 def process_per_country(file_base_name):
@@ -38,13 +46,9 @@ def process_per_month(file_base_name):
 
 
 def process_count(file_base_name, column, label):
-    data = (
-        pd.read_csv(f"data/{file_base_name}_processed.csv", sep=";")[column]
-        .value_counts()
-        .reset_index()
-    )
+    data = read_processed(file_base_name)[column].value_counts().reset_index()
     data.columns = [column, "QUANTIDADE"]
-    data.to_csv(f"data/CONTAGEM_POR_{label}_{file_base_name}.csv", sep=";", index=False)
+    save_csv(data, f"data/CONTAGEM_POR_{label}_{file_base_name}.csv")
 
 
 def process_count_country(file_base_name):

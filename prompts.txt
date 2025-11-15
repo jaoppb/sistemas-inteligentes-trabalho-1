@@ -1,0 +1,35 @@
+-----
+
+I want the generated graph to have IMP and EXP data at the same time with different colors each
+sort the merged by the total sum on the y_column
+how to change the 1e10 that appears at the top of the graph?
+how to replace it to por bilhão
+
+-----
+
+Arquivos anexados: EXP_2025_processed.csv, IMP_2025_processed.csv
+
+defina perguntas interessantes que podem ser respondidas pelos dados
+
+-----
+
+write a python script that parse ISO-8859-1 or Windows-1252 to UTF-8
+receive as param the type
+
+-----
+
+149 code represents which country
+which standard map 149 to canada?
+
+-----
+
+Anexo: relatório.pdf
+
+baseado no relatório
+gere um resumo em código latex
+gere um abstract em código latex
+gere palavras-chave que representem
+
+-----
+
+
